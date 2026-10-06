@@ -1,0 +1,14 @@
+{
+  "name": "external-remote-server",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Remote configuration and .3105 package server for EXTERNAL 3105 2.0",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "check": "node --check server.js && node --check database.js && node --check config.js && node --check lib/http.js && node --check lib/auth.js && node --check lib/validation.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

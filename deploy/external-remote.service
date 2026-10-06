@@ -1,0 +1,23 @@
+[Unit]
+Description=EXTERNAL Remote Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=external
+Group=external
+WorkingDirectory=/opt/external-remote
+EnvironmentFile=/opt/external-remote/.env
+ExecStart=/usr/bin/node /opt/external-remote/server.js
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/external-remote/data /opt/external-remote/backups
+
+[Install]
+WantedBy=multi-user.target

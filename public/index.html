@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>EXTERNAL Remote</title>
+<style>
+:root{
+  --bg:#000;
+  --panel:#0d0d0d;
+  --panel2:#111;
+  --line:#2b2b2b;
+  --line2:#202020;
+  --text:#f5f5f5;
+  --muted:#777;
+  --muted2:#555;
+  --white:#f4f4f4;
+  --green:#35e28c;
+  --red:#ff5b5b;
+  --amber:#d5a94f;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;background:#000;color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}
+body{overflow-x:hidden;-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.48}
+.hidden{display:none!important}
+
+/* BACKGROUND — mesmo comportamento do HTML de referência */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:#000;overflow:hidden}
+#particles{position:absolute;inset:0;width:100%;height:100%}
+.app{position:relative;z-index:1;min-height:100vh;min-height:100dvh}
+
+/* LOGIN */
+.login-page{min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:54px 20px 44px}
+.login-wrap{width:min(100%,420px);text-align:center}
+.brand-mark{width:92px;height:92px;border:1px solid #242424;border-radius:26px;background:#090909;margin:0 auto 22px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.55),0 0 36px rgba(255,255,255,.07);display:grid;place-items:center}
+.brand-mark svg{width:48px;height:48px;stroke:#f5f5f5;fill:none;stroke-width:1.5}
+.login-kicker{font-size:9px;color:#666;font-weight:900;letter-spacing:1.9px;margin-bottom:12px}
+.login-title{font-size:38px;letter-spacing:-1.8px;font-weight:900;margin-bottom:10px;margin-top:0}
+.login-desc{color:#5f5f5f;font-size:12px;font-weight:600;line-height:1.55;margin:0 auto 26px;max-width:330px}
+.login-card{background:rgba(10,10,10,.96);border:1px solid #292929;border-radius:22px;padding:20px;text-align:left;box-shadow:0 24px 70px rgba(0,0,0,.68)}
+.label{display:block;color:#707070;font-size:9px;font-weight:900;letter-spacing:1.7px;margin:0 0 8px}
+.input,.select,.textarea{width:100%;border:1px solid #303030;border-radius:12px;background:#030303;color:#eee;padding:0 14px;outline:none;transition:.16s ease}
+.input,.select{height:46px}
+.textarea{min-height:88px;padding:12px 14px;resize:vertical}
+.input:focus,.select:focus,.textarea:focus{border-color:#555;box-shadow:0 0 0 2px rgba(255,255,255,.035)}
+.primary{width:100%;height:46px;border:0;border-radius:12px;background:#f4f4f4;color:#080808;font-size:12px;font-weight:900;letter-spacing:.1px;transition:.16s ease}
+.primary:hover{background:#fff}.primary:active{transform:scale(.985)}
+.secondary{height:38px;border:1px solid #303030;border-radius:9px;background:#0e0e0e;color:#ddd;font-size:10px;font-weight:800;transition:.16s ease}
+.secondary:hover{border-color:#484848;background:#141414}.secondary:active{transform:scale(.985)}
+.login-enter{margin-top:16px}
+.login-foot{margin-top:18px;color:#414141;font-size:9px}
+.login-error{min-height:15px;margin-top:9px;color:#a84c4c;font-size:10px;text-align:center}
+
+/* APP HEADER */
+.shell{width:min(100% - 34px,900px);margin:0 auto;padding:26px 0 92px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:38px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand-box{width:52px;height:52px;border-radius:14px;border:1px solid #292929;background:#0f0f0f;overflow:hidden;flex:0 0 auto;display:grid;place-items:center}
+.brand-box svg{width:28px;height:28px;stroke:#f4f4f4;fill:none;stroke-width:1.5}
+.brand h1{font-size:22px;font-weight:900;letter-spacing:-.8px}
+.brand p{font-size:8px;color:#555;margin-top:3px}
+.top-actions{display:flex;align-items:center;gap:8px}
+.status-pill{height:31px;padding:0 11px;border-radius:10px;border:1px solid #292929;background:#0c0c0c;color:#888;font-size:9px;display:flex;align-items:center;gap:6px}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--red);box-shadow:0 0 0 rgba(53,226,140,0)}
+.status-dot.live{background:var(--green);animation:statusPulse 1.8s ease-in-out infinite}
+.icon-btn{width:38px;height:38px;border:1px solid #292929;border-radius:11px;background:#0d0d0d;color:#bdbdbd;display:grid;place-items:center;padding:0;transition:.16s ease}
+.icon-btn:hover{color:#fff;border-color:#444;background:#121212}.icon-btn:active{transform:scale(.96)}
+.icon-btn svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* PAGE */
+.tab-page{animation:pageIn .2s ease both}
+.page-head{margin-bottom:20px}
+.eyebrow{font-size:9px;color:#626262;font-weight:900;letter-spacing:2px;margin-bottom:5px}
+.page-title{font-size:34px;line-height:1;font-weight:900;letter-spacing:-1.7px;margin-bottom:9px}
+.page-desc{color:#666;font-size:11px;line-height:1.45}
+
+/* PANELS */
+.panel{background:rgba(12,12,12,.96);border:1px solid var(--line);border-radius:17px;overflow:hidden}
+.panel + .panel{margin-top:12px}
+.panel-section{padding:15px 16px;border-top:1px solid var(--line2);transition:.16s ease}
+.panel-section:first-child{border-top:0}
+.panel-section.hoverable:hover{background:#101010}
+.row-head{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.row-main{min-width:0;flex:1}
+.row-title{font-size:12px;font-weight:800;color:#e8e8e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-sub{font-size:9px;color:#555;margin-top:3px;line-height:1.4;overflow-wrap:anywhere}
+.row-meta{font-size:9px;color:#666;white-space:nowrap}
+.control-block{margin-top:11px}
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.controls.end{justify-content:flex-end}
+.mini-btn{height:30px;border:1px solid #303030;border-radius:8px;background:#0e0e0e;color:#aaa;font-size:9px;font-weight:800;padding:0 10px;transition:.16s ease}
+.mini-btn:hover{color:#eee;border-color:#484848;background:#141414}
+.mini-btn.red{border-color:#542626;background:#1b0d0d;color:#d16b6b}
+.mini-btn.red:hover{border-color:#773333;color:#ff8f8f}
+.mini-btn.white{background:#f4f4f4;color:#111;border-color:#f4f4f4}
+.mini-btn.white:hover{background:#fff;border-color:#fff}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat-card{border:1px solid #292929;border-radius:13px;background:#0d0d0d;padding:14px;min-width:0;transition:.16s ease}
+.stat-card:hover{border-color:#3a3a3a;transform:translateY(-1px)}
+.stat-label{font-size:8px;color:#5a5a5a;font-weight:900;letter-spacing:1.4px;margin-bottom:7px}
+.stat-value{font-size:20px;color:#eee;font-weight:900;letter-spacing:-.6px}
+.stat-sub{font-size:8px;color:#555;margin-top:4px}
+
+/* FILTERS */
+.toolbar{display:grid;grid-template-columns:minmax(0,1fr) 150px auto;gap:8px;margin-bottom:12px}
+.toolbar.two{grid-template-columns:minmax(0,1fr) auto}
+.search-wrap{position:relative}.search-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:#666;fill:none;stroke-width:1.8}
+.search-wrap .input{padding-left:39px}
+
+/* TOGGLE */
+.toggle{width:32px;height:18px;border:0;border-radius:999px;background:#3a3a3a;position:relative;flex:0 0 auto;transition:.16s;padding:0}
+.toggle::after{content:"";position:absolute;width:14px;height:14px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.16s}
+.toggle.on{background:#f4f4f4}
+.toggle.on::after{left:16px;background:#111}
+.toggle:disabled{opacity:.35}
+.toggle-pair{display:flex;align-items:center;gap:10px}
+.toggle-label{display:flex;align-items:center;gap:6px;color:#777;font-size:8px;font-weight:800;white-space:nowrap}
+
+/* BADGES */
+.badges{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px}
+.badge{height:20px;padding:0 7px;border:1px solid #292929;border-radius:6px;background:#080808;color:#777;font-size:7.5px;font-weight:900;letter-spacing:.4px;display:inline-flex;align-items:center;gap:4px;text-transform:uppercase}
+.badge.good{border-color:#1f4a35;color:#53bb80;background:#09130d}
+.badge.warn{border-color:#51421f;color:#d5a94f;background:#161207}
+.badge.bad{border-color:#542626;color:#d16b6b;background:#160909}
+.badge .dot{width:4px;height:4px;border-radius:50%;background:currentColor}
+
+/* FILE/PATCH */
+.patch-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.patch-field{border:1px solid #232323;border-radius:10px;background:#080808;padding:10px;min-width:0}
+.patch-field span{display:block;font-size:7.5px;color:#555;font-weight:900;letter-spacing:1px;margin-bottom:5px;text-transform:uppercase}
+.patch-field strong{display:block;font-size:9px;color:#bbb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-input{display:none}
+.upload-progress{height:3px;background:#1a1a1a;border-radius:999px;overflow:hidden;margin-top:8px}
+.upload-progress>i{display:block;height:100%;width:0;background:#f4f4f4;transition:width .16s ease}
+
+/* LIST EMPTY */
+.empty{padding:48px 20px;text-align:center;color:#555}
+.empty svg{width:36px;height:36px;stroke:#555;fill:none;stroke-width:1.5;margin-bottom:12px}
+.empty h3{font-size:13px;color:#aaa;margin-bottom:5px}.empty p{font-size:9px;line-height:1.5}
+
+/* SYNC */
+.sync{display:flex;align-items:center;gap:6px;margin:10px 2px 0;color:#555;font-size:8px}
+.sync-dot{width:5px;height:5px;background:var(--green);border-radius:50%}
+
+/* NAV */
+.bottom-nav{position:fixed;z-index:20;left:50%;bottom:max(11px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(calc(100% - 26px),520px);height:64px;border:1px solid #292929;border-radius:16px;background:rgba(12,12,12,.98);display:grid;grid-template-columns:repeat(5,1fr);padding:5px;box-shadow:0 15px 50px rgba(0,0,0,.7);backdrop-filter:blur(14px)}
+.nav-btn{border:0;border-radius:11px;background:transparent;color:#666;font-size:8.5px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;padding:4px 2px;transition:.16s ease}
+.nav-btn:hover{color:#999}.nav-btn:active{transform:scale(.97)}
+.nav-btn .ico{width:21px;height:21px;display:grid;place-items:center;line-height:0}.nav-btn .ico svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.active{background:#f4f4f4;color:#111}
+
+/* DRAWER/MODAL */
+.modal-layer{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.76);backdrop-filter:blur(8px);animation:fadeIn .16s ease both}
+.modal{width:min(100%,560px);max-height:min(86vh,760px);overflow:auto;border:1px solid #303030;border-radius:18px;background:#0b0b0b;box-shadow:0 26px 100px rgba(0,0,0,.8);animation:modalIn .2s ease both}
+.modal-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:rgba(11,11,11,.96);border-bottom:1px solid #202020;backdrop-filter:blur(10px)}
+.modal-title{font-size:15px;font-weight:900;letter-spacing:-.4px}
+.modal-sub{font-size:8px;color:#555;margin-top:3px}
+.modal-body{padding:16px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field.full{grid-column:1/-1}
+.field .label{margin-bottom:7px}
+.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.modal-actions .secondary,.modal-actions .primary{height:42px}
+
+/* HISTORY */
+.history-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid #202020}
+.history-item:first-child{border-top:0;padding-top:0}
+.version-ball{width:34px;height:34px;border:1px solid #303030;border-radius:9px;background:#080808;display:grid;place-items:center;font-size:9px;font-weight:900;color:#ddd}
+.history-main{min-width:0}.history-main strong{display:block;font-size:10px;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.history-main span{display:block;font-size:8px;color:#555;margin-top:3px}
+
+/* AUDIT */
+.audit-line{display:grid;grid-template-columns:118px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid #202020}
+.audit-line:first-child{border-top:0}
+.audit-event{font-size:9px;font-weight:800;color:#bbb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.audit-meta{font-size:8px;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.audit-time{font-size:8px;color:#555;white-space:nowrap}
+
+/* TOAST */
+.toast-stack{position:fixed;z-index:120;right:16px;top:16px;width:min(calc(100% - 32px),340px);display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{pointer-events:auto;border:1px solid #303030;border-radius:12px;background:rgba(12,12,12,.97);box-shadow:0 16px 50px rgba(0,0,0,.65);padding:12px 13px;display:flex;gap:10px;align-items:flex-start;animation:toastIn .22s ease both}
+.toast-dot{width:7px;height:7px;border-radius:50%;background:var(--green);margin-top:4px;flex:0 0 auto}.toast.error .toast-dot{background:var(--red)}.toast.warn .toast-dot{background:var(--amber)}
+.toast strong{display:block;font-size:9px;color:#ddd}.toast p{font-size:8px;color:#666;margin-top:3px;line-height:1.4}
+
+/* LOADING */
+.loading-bar{position:fixed;z-index:140;left:0;top:0;height:2px;width:0;background:#f4f4f4;box-shadow:0 0 12px rgba(255,255,255,.32);transition:width .18s ease,opacity .25s ease;opacity:0}
+.loading-bar.on{opacity:1}
+
+/* DANGER */
+.danger{height:38px;border:1px solid #6f2727;border-radius:9px;background:#261010;color:#ff8888;font-size:10px;font-weight:800;padding:0 13px;transition:.16s ease}
+.danger:hover{background:#351414;border-color:#8b3333}.danger:active{transform:scale(.985)}
+
+/* KEYFRAMES */
+@keyframes pageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes toastIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+@keyframes statusPulse{0%,100%{box-shadow:0 0 0 0 rgba(53,226,140,.14)}50%{box-shadow:0 0 0 5px rgba(53,226,140,0)}}
+
+@media(max-width:720px){
+  .shell{width:calc(100% - 24px);padding:20px 0 88px}
+  .topbar{margin-bottom:28px}
+  .brand h1{font-size:19px}
+  .brand-box{width:38px;height:38px}
+  .brand-box svg{width:22px;height:22px}
+  .status-pill{display:none}
+  .page-title{font-size:30px}
+  .panel-section{padding:14px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .toolbar,.toolbar.two{grid-template-columns:1fr}
+  .patch-grid{grid-template-columns:1fr}
+  .modal-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .audit-line{grid-template-columns:1fr auto}.audit-line .audit-event{grid-column:1/-1}
+  .bottom-nav{height:64px}
+}
+@media(max-width:390px){
+  .login-page{padding-left:14px;padding-right:14px}
+  .shell{width:calc(100% - 18px)}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .modal-layer{padding:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div id="bg"><canvas id="particles"></canvas></div>
+<div id="loadingBar" class="loading-bar"></div>
+<div id="toastStack" class="toast-stack"></div>
+
+<div class="app">
+  <!-- LOGIN -->
+  <section id="loginPage" class="login-page">
+    <div class="login-wrap">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M24 5 40 14v20L24 43 8 34V14z"></path><path d="m8 14 16 9 16-9M24 23v20"></path></svg>
+      </div>
+      <div class="login-kicker">EXTERNAL REMOTE CONTROL</div>
+      <h1 class="login-title">EXTERNAL</h1>
+      <p class="login-desc">Controle abas, funções e arquivos .3105 sem recompilar a aplicação.</p>
+
+      <div class="login-card">
+        <label class="label" for="loginUser">USUÁRIO</label>
+        <input id="loginUser" class="input" placeholder="nextaway" autocomplete="username">
+
+        <label class="label" for="loginPassword" style="margin-top:14px">SENHA</label>
+        <input id="loginPassword" class="input" type="password" placeholder="••••••••••••" autocomplete="current-password">
+
+        <button id="loginBtn" class="primary login-enter">Entrar</button>
+        <div id="loginError" class="login-error"></div>
+      </div>
+      <div class="login-foot">Painel administrativo • EXTERNAL iOS</div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="hidden">
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-box" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><path d="M24 5 40 14v20L24 43 8 34V14z"></path><path d="m8 14 16 9 16-9M24 23v20"></path></svg>
+          </div>
+          <div>
+            <h1>EXTERNAL</h1>
+            <p>REMOTE CONTROL</p>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <div class="status-pill"><span id="statusDot" class="status-dot"></span><span id="onlineText">Offline</span></div>
+          <button id="refreshBtn" class="icon-btn" title="Atualizar" aria-label="Atualizar">
+            <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0 2 5.5"></path><path d="M20 4v7h-7"></path></svg>
+          </button>
+          <button id="logoutBtn" class="icon-btn" title="Sair" aria-label="Sair">
+            <svg viewBox="0 0 24 24"><path d="M10 5H6.8A2.8 2.8 0 0 0 4 7.8v8.4A2.8 2.8 0 0 0 6.8 19H10"></path><path d="M14 8l4 4-4 4"></path><path d="M8.5 12H18"></path></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- OVERVIEW -->
+      <section id="pageOverview" class="tab-page">
+        <div class="page-head">
+          <div class="eyebrow">CONTROLE REMOTO</div>
+          <h2 class="page-title">Dashboard</h2>
+          <p class="page-desc">Estado atual publicado para todas as EXTERNAL conectadas.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">REVISION</div><div id="statRevision" class="stat-value">—</div><div class="stat-sub">Config atual</div></div>
+          <div class="stat-card"><div class="stat-label">ABAS</div><div id="statTabs" class="stat-value">—</div><div class="stat-sub">Cadastradas</div></div>
+          <div class="stat-card"><div class="stat-label">FUNÇÕES</div><div id="statFeatures" class="stat-value">—</div><div class="stat-sub">Cadastradas</div></div>
+          <div class="stat-card"><div class="stat-label">PATCHES</div><div id="statPatches" class="stat-value">—</div><div id="statPatchSub" class="stat-sub">Publicados</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-section">
+            <div class="row-head">
+              <div><div class="row-title">Sincronização do cliente</div><div class="row-sub">Intervalo usado pela EXTERNAL para buscar mudanças no servidor.</div></div>
+              <div id="pollMeta" class="row-meta">—</div>
+            </div>
+            <div class="control-block" style="display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:8px">
+              <input id="pollRange" type="range" min="15" max="300" step="5" value="30" style="width:100%;accent-color:#f3f3f3">
+              <button id="savePollBtn" class="secondary">Salvar</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <div class="row-head">
+              <div><div class="row-title">Publicação atual</div><div id="publishedSummary" class="row-sub">Carregando estado...</div></div>
+              <button id="openPublicConfigBtn" class="mini-btn">Ver JSON</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:12px">
+          <div class="panel-section"><div class="row-head"><div><div class="row-title">Alterações recentes</div><div class="row-sub">Últimos eventos administrativos registrados pelo servidor.</div></div><button id="refreshAuditOverview" class="mini-btn">Atualizar</button></div></div>
+          <div id="overviewAudit" class="panel-section"><div class="row-sub">Carregando...</div></div>
+        </div>
+        <div class="sync"><span class="sync-dot"></span><span id="overviewSync">Sincronização ativa</span></div>
+      </section>
+
+      <!-- TABS -->
+      <section id="pageTabs" class="tab-page hidden">
+        <div class="page-head">
+          <div class="eyebrow">ESTRUTURA DA INTERFACE</div>
+          <h2 class="page-title">Abas</h2>
+          <p class="page-desc">Esconda uma aba inteira da EXTERNAL ou bloqueie seu uso remotamente.</p>
+        </div>
+        <div class="toolbar two">
+          <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"></circle><path d="m16 16 4 4"></path></svg><input id="tabSearch" class="input" placeholder="Pesquisar abas"></div>
+          <button id="newTabBtn" class="primary" style="width:auto;padding:0 18px">Nova aba</button>
+        </div>
+        <div id="tabsList" class="panel"></div>
+        <div class="sync"><span class="sync-dot"></span><span>visible=false remove a aba da interface</span></div>
+      </section>
+
+      <!-- FEATURES -->
+      <section id="pageFeatures" class="tab-page hidden">
+        <div class="page-head">
+          <div class="eyebrow">FUNCTION / NO RELOG / TEXTURAS</div>
+          <h2 class="page-title">Funções</h2>
+          <p class="page-desc">Controle individual de visibilidade, disponibilidade, ordem e vínculo dos .3105.</p>
+        </div>
+        <div class="toolbar">
+          <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"></circle><path d="m16 16 4 4"></path></svg><input id="featureSearch" class="input" placeholder="Pesquisar função, categoria ou ID"></div>
+          <select id="featureTabFilter" class="select"><option value="">Todas as abas</option></select>
+          <button id="newFeatureBtn" class="primary" style="width:auto;padding:0 18px">Nova função</button>
+        </div>
+        <div id="featuresList" class="panel"></div>
+        <div class="sync"><span class="sync-dot"></span><span>enabled=false mantém a função visível e inativável</span></div>
+      </section>
+
+      <!-- PATCHES -->
+      <section id="pagePatches" class="tab-page hidden">
+        <div class="page-head">
+          <div class="eyebrow">ARQUIVOS .3105</div>
+          <h2 class="page-title">Patches</h2>
+          <p class="page-desc">Publique uma nova versão, veja histórico ou faça rollback sem rebuild.</p>
+        </div>
+        <div class="toolbar two">
+          <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"></circle><path d="m16 16 4 4"></path></svg><input id="patchSearch" class="input" placeholder="Pesquisar patch, arquivo ou ID"></div>
+          <button id="newPatchBtn" class="primary" style="width:auto;padding:0 18px">Novo patch</button>
+        </div>
+        <div id="patchesList" class="panel"></div>
+        <div class="sync"><span class="sync-dot"></span><span>Upload publica uma versão nova e incrementa revision</span></div>
+      </section>
+
+      <!-- SYSTEM -->
+      <section id="pageSystem" class="tab-page hidden">
+        <div class="page-head">
+          <div class="eyebrow">SERVIDOR</div>
+          <h2 class="page-title">Sistema</h2>
+          <p class="page-desc">Saúde da API, configurações e trilha de auditoria.</p>
+        </div>
+        <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <div class="stat-card"><div class="stat-label">API</div><div id="systemHealth" class="stat-value" style="font-size:14px">—</div><div class="stat-sub">/health</div></div>
+          <div class="stat-card"><div class="stat-label">ADMIN</div><div id="systemAdmin" class="stat-value" style="font-size:14px">—</div><div class="stat-sub">Sessão atual</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-section"><div class="row-head"><div><div class="row-title">Audit log</div><div class="row-sub">As 100 operações administrativas mais recentes.</div></div><button id="refreshAuditBtn" class="mini-btn">Atualizar</button></div></div>
+          <div id="auditList" class="panel-section"><div class="row-sub">Carregando...</div></div>
+        </div>
+        <div class="panel" style="margin-top:12px">
+          <div class="panel-section"><div class="row-head"><div><div class="row-title">Sessão administrativa</div><div class="row-sub">Finaliza o token atual no servidor e retorna ao login.</div></div><button id="systemLogoutBtn" class="danger">Encerrar sessão</button></div></div>
+        </div>
+      </section>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-page="Overview"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z"></path></svg></span><span>Dashboard</span></button>
+      <button class="nav-btn" data-page="Tabs"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M8 5v14"></path></svg></span><span>Abas</span></button>
+      <button class="nav-btn" data-page="Features"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M9 4v6M15 14v6"></path><circle cx="9" cy="7" r="2"></circle><circle cx="15" cy="17" r="2"></circle></svg></span><span>Funções</span></button>
+      <button class="nav-btn" data-page="Patches"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"></path><path d="m4 7.5 8 4.5 8-4.5M12 12v9"></path></svg></span><span>Patches</span></button>
+      <button class="nav-btn" data-page="System"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1a7 7 0 0 0-1.7-1L14.5 3h-5L9 6.1a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L5 11a7 7 0 0 0 0 2l-2.1 1.5 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.5 3.1h5l.5-3.1a7 7 0 0 0 1.7-1l2.4 1 2-3.4L19 13a7 7 0 0 0 .1-1z"></path></svg></span><span>Sistema</span></button>
+    </nav>
+  </section>
+</div>
+
+<div id="modalLayer" class="modal-layer hidden"></div>
+
+<script>
+/* =========================================================
+   PARTICLES — mesmo algoritmo visual do HTML fornecido
+========================================================= */
+const particleCanvas=document.getElementById("particles");
+const particleCtx=particleCanvas.getContext("2d");
+let dots=[];
+let cw=0,ch=0,lastWidth=0;
+
+function setupCanvas(force=false){
+  const w=document.documentElement.clientWidth;
+  const h=Math.max(window.innerHeight,document.documentElement.clientHeight);
+  if(!force&&Math.abs(w-lastWidth)<20)return;
+  lastWidth=w;
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  cw=w;ch=h;
+  particleCanvas.width=Math.round(cw*dpr);
+  particleCanvas.height=Math.round(ch*dpr);
+  particleCanvas.style.width=cw+"px";
+  particleCanvas.style.height=ch+"px";
+  particleCtx.setTransform(dpr,0,0,dpr,0,0);
+  dots=Array.from({length:Math.max(30,Math.floor(cw/25))},()=>({
+    x:Math.random()*cw,
+    y:Math.random()*ch,
+    vx:(Math.random()-.5)*.22,
+    vy:(Math.random()-.5)*.22,
+    r:Math.random()*.9+.35
+  }));
+}
+
+function animateParticles(){
+  particleCtx.clearRect(0,0,cw,ch);
+  for(const p of dots){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>cw)p.vx*=-1;
+    if(p.y<0||p.y>ch)p.vy*=-1;
+    particleCtx.beginPath();
+    particleCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    particleCtx.fillStyle="rgba(255,255,255,.68)";
+    particleCtx.fill();
+  }
+  for(let i=0;i<dots.length;i++){
+    for(let j=i+1;j<dots.length;j++){
+      const a=dots[i],b=dots[j];
+      const dx=a.x-b.x,dy=a.y-b.y;
+      const d2=dx*dx+dy*dy;
+      if(d2<12100){
+        const d=Math.sqrt(d2);
+        particleCtx.beginPath();
+        particleCtx.moveTo(a.x,a.y);
+        particleCtx.lineTo(b.x,b.y);
+        particleCtx.strokeStyle=`rgba(255,255,255,${(1-d/110)*.14})`;
+        particleCtx.lineWidth=.6;
+        particleCtx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animateParticles);
+}
+addEventListener("resize",()=>setupCanvas(false),{passive:true});
+addEventListener("orientationchange",()=>setTimeout(()=>setupCanvas(true),250));
+setupCanvas(true);
+animateParticles();
+
+/* =========================================================
+   HELPERS / STATE
+========================================================= */
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const enc=encodeURIComponent;
+let adminToken=localStorage.getItem("external_admin_token")||"";
+let adminUser=localStorage.getItem("external_admin_user")||"";
+let remoteState={schema:2,revision:0,pollIntervalSeconds:30,tabs:[],features:[],patches:[],stats:{}};
+let auditEvents=[];
+let requestDepth=0;
+
+function escapeHTML(value){
+  return String(value??"").replace(/[&<>'"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch]));
+}
+function fmtBytes(n){
+  n=Number(n)||0;
+  if(!n)return "0 B";
+  const u=["B","KB","MB","GB"];let i=0;
+  while(n>=1024&&i<u.length-1){n/=1024;i++}
+  return `${n.toFixed(i?1:0)} ${u[i]}`;
+}
+function fmtDate(ts){
+  const d=new Date(Number(ts)||ts);
+  if(Number.isNaN(d.getTime()))return "—";
+  return d.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"});
+}
+function shortHash(v){const s=String(v||"");return s?`${s.slice(0,10)}…${s.slice(-8)}`:"—"}
+function byOrder(a,b){return (a.order??0)-(b.order??0)||String(a.title||a.id).localeCompare(String(b.title||b.id),"pt-BR")}
+function patchById(id){return remoteState.patches.find(p=>p.id===id)||null}
+function tabById(id){return remoteState.tabs.find(t=>t.id===id)||null}
+
+function beginLoading(){
+  requestDepth++;
+  const b=$("#loadingBar");b.classList.add("on");b.style.width=requestDepth===1?"36%":"68%";
+}
+function endLoading(){
+  requestDepth=Math.max(0,requestDepth-1);
+  if(!requestDepth){const b=$("#loadingBar");b.style.width="100%";setTimeout(()=>{b.classList.remove("on");b.style.width="0"},180)}
+}
+function toast(title,message="",type="ok"){
+  const el=document.createElement("div");
+  el.className=`toast ${type==='error'?'error':type==='warn'?'warn':''}`;
+  el.innerHTML=`<span class="toast-dot"></span><div><strong>${escapeHTML(title)}</strong>${message?`<p>${escapeHTML(message)}</p>`:""}</div>`;
+  $("#toastStack").appendChild(el);
+  setTimeout(()=>{el.style.opacity="0";el.style.transform="translateX(10px)";setTimeout(()=>el.remove(),220)},3400);
+}
+function setStatus(text,live=true){
+  $("#onlineText").textContent=text;
+  $("#statusDot").classList.toggle("live",live);
+  if(!live)$("#statusDot").style.background="var(--red)";else $("#statusDot").style.background="";
+}
+
+async function api(path,options={}){
+  beginLoading();
+  const headers={...(options.headers||{})};
+  if(adminToken)headers.Authorization="Bearer "+adminToken;
+  if(options.body!==undefined && !(options.body instanceof Blob) && !(options.body instanceof ArrayBuffer) && !headers["Content-Type"]){headers["Content-Type"]="application/json"}
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),15000);
+  try{
+    const res=await fetch(path,{...options,headers,cache:"no-store",signal:options.signal||controller.signal});
+    const type=res.headers.get("content-type")||"";
+    const data=type.includes("application/json")?await res.json().catch(()=>({})):await res.text().catch(()=>"");
+    if(!res.ok){
+      const msg=typeof data==="object"&&data?(data.error||data.message||`HTTP ${res.status}`):(data||`HTTP ${res.status}`);
+      const e=new Error(msg);e.status=res.status;e.data=data;throw e;
+    }
+    return data;
+  }finally{clearTimeout(timer);endLoading()}
+}
+
+function onAuthFailure(error){
+  if(error?.status===401){
+    localStorage.removeItem("external_admin_token");adminToken="";
+    $("#dashboard").classList.add("hidden");$("#loginPage").classList.remove("hidden");
+    $("#loginError").textContent="Sessão expirada. Entre novamente.";
+    setStatus("Offline",false);
+    return true;
+  }
+  return false;
+}
+
+/* =========================================================
+   AUTH
+========================================================= */
+async function login(){
+  const username=$("#loginUser").value.trim();
+  const password=$("#loginPassword").value;
+  $("#loginError").textContent="";
+  if(!username||!password){$("#loginError").textContent="Preencha usuário e senha.";return}
+  const btn=$("#loginBtn");btn.disabled=true;btn.textContent="Validando...";
+  try{
+    const data=await api("/api/admin/login",{method:"POST",body:JSON.stringify({username,password})});
+    adminToken=data.token;adminUser=data.username||username;
+    localStorage.setItem("external_admin_token",adminToken);localStorage.setItem("external_admin_user",adminUser);
+    openDashboard();await loadAll();toast("Painel conectado","Sessão administrativa iniciada.");
+  }catch(e){$("#loginError").textContent=e.message||"Não foi possível entrar."}
+  finally{btn.disabled=false;btn.textContent="Entrar"}
+}
+async function logout(){
+  const old=adminToken;
+  adminToken="";localStorage.removeItem("external_admin_token");localStorage.removeItem("external_admin_user");
+  if(old){fetch("/api/admin/logout",{method:"POST",headers:{Authorization:"Bearer "+old},keepalive:true}).catch(()=>{})}
+  $("#dashboard").classList.add("hidden");$("#loginPage").classList.remove("hidden");
+  $("#loginPassword").value="";setStatus("Offline",false);window.scrollTo(0,0);
+}
+function openDashboard(){
+  $("#loginPage").classList.add("hidden");$("#dashboard").classList.remove("hidden");
+  $("#systemAdmin").textContent=adminUser||"Admin";setStatus("Online",true);window.scrollTo(0,0);
+}
+$("#loginBtn").onclick=login;
+$("#loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+$("#logoutBtn").onclick=logout;$("#systemLogoutBtn").onclick=logout;
+
+/* =========================================================
+   DATA / RENDER
+========================================================= */
+async function loadState(){
+  const data=await api("/api/admin/state");
+  remoteState=data;renderAll();return data;
+}
+async function loadAudit(limit=100){
+  const data=await api(`/api/admin/audit?limit=${limit}`);auditEvents=data.events||[];renderAudit();renderOverviewAudit();
+}
+async function loadHealth(){
+  try{const d=await api("/health");$("#systemHealth").textContent=d?.ok===false?"Falha":"Online"}catch{$("#systemHealth").textContent="Offline"}
+}
+async function loadAll(){
+  try{await Promise.all([loadState(),loadAudit(100),loadHealth()]);setStatus("Online",true)}
+  catch(e){if(!onAuthFailure(e)){setStatus("Erro",false);toast("Falha ao sincronizar",e.message,"error")}}
+}
+
+function renderAll(){
+  $("#statRevision").textContent=remoteState.revision??"—";
+  $("#statTabs").textContent=remoteState.stats?.tabs??remoteState.tabs?.length??0;
+  $("#statFeatures").textContent=remoteState.stats?.features??remoteState.features?.length??0;
+  $("#statPatches").textContent=remoteState.stats?.patches??remoteState.patches?.length??0;
+  $("#statPatchSub").textContent=`${remoteState.stats?.publishedPatches??remoteState.patches?.filter(p=>p.version>0).length??0} publicados • ${remoteState.stats?.patchVersions??0} versões`;
+  $("#pollRange").value=remoteState.pollIntervalSeconds||30;
+  $("#pollMeta").textContent=`${remoteState.pollIntervalSeconds||30}s`;
+  const visibleTabs=remoteState.tabs.filter(t=>t.visible).length;
+  const visibleFeatures=remoteState.features.filter(f=>f.visible).length;
+  $("#publishedSummary").textContent=`Revision ${remoteState.revision} • ${visibleTabs}/${remoteState.tabs.length} abas visíveis • ${visibleFeatures}/${remoteState.features.length} funções visíveis.`;
+  renderTabFilter();renderTabs();renderFeatures();renderPatches();
+}
+
+function renderTabFilter(){
+  const current=$("#featureTabFilter").value;
+  $("#featureTabFilter").innerHTML='<option value="">Todas as abas</option>'+remoteState.tabs.slice().sort(byOrder).map(t=>`<option value="${escapeHTML(t.id)}">${escapeHTML(t.title)}</option>`).join("");
+  if([...$("#featureTabFilter").options].some(o=>o.value===current))$("#featureTabFilter").value=current;
+}
+
+function renderTabs(){
+  const q=$("#tabSearch").value.trim().toLowerCase();
+  const rows=remoteState.tabs.slice().sort(byOrder).filter(t=>!q||`${t.id} ${t.title} ${t.icon}`.toLowerCase().includes(q));
+  const root=$("#tabsList");
+  if(!rows.length){root.innerHTML=emptyHTML("Nenhuma aba","Nada corresponde ao filtro atual.");return}
+  root.innerHTML=rows.map(t=>`
+    <div class="panel-section hoverable" data-tab-row="${escapeHTML(t.id)}">
+      <div class="row-head">
+        <div class="row-main">
+          <div class="row-title">${escapeHTML(t.title)}</div>
+          <div class="row-sub">${escapeHTML(t.id)} • ${escapeHTML(t.icon)} • ordem ${t.order}</div>
+          <div class="badges">
+            <span class="badge ${t.visible?'good':'bad'}"><span class="dot"></span>${t.visible?'VISÍVEL':'OCULTA'}</span>
+            <span class="badge ${t.enabled?'good':'warn'}"><span class="dot"></span>${t.enabled?'ATIVA':'BLOQUEADA'}</span>
+            <span class="badge">${remoteState.features.filter(f=>f.tabID===t.id).length} FUNÇÕES</span>
+          </div>
+        </div>
+        <div class="controls end">
+          <label class="toggle-label">Mostrar <button class="toggle ${t.visible?'on':''}" data-action="tab-visible" data-id="${escapeHTML(t.id)}" aria-label="Mostrar ${escapeHTML(t.title)}"></button></label>
+          <label class="toggle-label">Ativar <button class="toggle ${t.enabled?'on':''}" data-action="tab-enabled" data-id="${escapeHTML(t.id)}" aria-label="Ativar ${escapeHTML(t.title)}"></button></label>
+        </div>
+      </div>
+      <div class="controls" style="margin-top:11px">
+        <button class="mini-btn" data-action="edit-tab" data-id="${escapeHTML(t.id)}">Editar</button>
+        <button class="mini-btn red" data-action="delete-tab" data-id="${escapeHTML(t.id)}">Excluir</button>
+      </div>
+    </div>`).join("");
+}
+
+function renderFeatures(){
+  const q=$("#featureSearch").value.trim().toLowerCase();
+  const tabFilter=$("#featureTabFilter").value;
+  const rows=remoteState.features.slice().sort((a,b)=>String(a.tabID).localeCompare(String(b.tabID))||byOrder(a,b)).filter(f=>{
+    if(tabFilter&&f.tabID!==tabFilter)return false;
+    if(!q)return true;
+    return `${f.id} ${f.title} ${f.subtitle||''} ${f.category} ${f.game} ${f.patchID||''} ${f.withAntennaPatchID||''}`.toLowerCase().includes(q);
+  });
+  const root=$("#featuresList");
+  if(!rows.length){root.innerHTML=emptyHTML("Nenhuma função","Nada corresponde ao filtro atual.");return}
+  root.innerHTML=rows.map(f=>{
+    const tab=tabById(f.tabID);
+    return `<div class="panel-section hoverable">
+      <div class="row-head">
+        <div class="row-main">
+          <div class="row-title">${escapeHTML(f.title)}</div>
+          <div class="row-sub">${escapeHTML(f.subtitle||f.id)}</div>
+          <div class="badges">
+            <span class="badge">${escapeHTML(tab?.title||f.tabID)}</span>
+            <span class="badge">${escapeHTML(f.category)}</span>
+            <span class="badge">${escapeHTML(f.game)}</span>
+            <span class="badge ${f.visible?'good':'bad'}">${f.visible?'VISÍVEL':'OCULTA'}</span>
+            <span class="badge ${f.enabled?'good':'warn'}">${f.enabled?'ATIVA':'BLOQUEADA'}</span>
+          </div>
+        </div>
+        <div class="controls end">
+          <label class="toggle-label">Mostrar <button class="toggle ${f.visible?'on':''}" data-action="feature-visible" data-id="${escapeHTML(f.id)}"></button></label>
+          <label class="toggle-label">Ativar <button class="toggle ${f.enabled?'on':''}" data-action="feature-enabled" data-id="${escapeHTML(f.id)}"></button></label>
+        </div>
+      </div>
+      <div class="patch-grid">
+        <div class="patch-field"><span>PATCH PRINCIPAL</span><strong title="${escapeHTML(f.patchID||'—')}">${escapeHTML(f.patchID||'—')}</strong></div>
+        <div class="patch-field"><span>COM ANTENA</span><strong title="${escapeHTML(f.withAntennaPatchID||'—')}">${escapeHTML(f.withAntennaPatchID||'—')}</strong></div>
+      </div>
+      <div class="controls" style="margin-top:11px">
+        <button class="mini-btn" data-action="edit-feature" data-id="${escapeHTML(f.id)}">Editar</button>
+        <button class="mini-btn red" data-action="delete-feature" data-id="${escapeHTML(f.id)}">Excluir</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderPatches(){
+  const q=$("#patchSearch").value.trim().toLowerCase();
+  const rows=remoteState.patches.slice().sort((a,b)=>String(a.id).localeCompare(String(b.id))).filter(p=>!q||`${p.id} ${p.fileName} ${p.sha256}`.toLowerCase().includes(q));
+  const root=$("#patchesList");
+  if(!rows.length){root.innerHTML=emptyHTML("Nenhum patch","Nada corresponde ao filtro atual.");return}
+  root.innerHTML=rows.map(p=>{
+    const published=Number(p.version)>0&&p.sha256;
+    const refs=remoteState.features.filter(f=>f.patchID===p.id||f.withAntennaPatchID===p.id).length;
+    return `<div class="panel-section hoverable">
+      <div class="row-head">
+        <div class="row-main">
+          <div class="row-title">${escapeHTML(p.id)}</div>
+          <div class="row-sub">${escapeHTML(p.fileName||p.id+'.3105')}</div>
+          <div class="badges">
+            <span class="badge ${published?'good':'warn'}"><span class="dot"></span>${published?'PUBLICADO':'SEM ARQUIVO'}</span>
+            <span class="badge">V${Number(p.version)||0}</span>
+            <span class="badge">${refs} VÍNCULOS</span>
+          </div>
+        </div>
+        <button class="mini-btn white" data-action="upload-patch" data-id="${escapeHTML(p.id)}">Enviar .3105</button>
+        <input class="file-input" type="file" accept=".3105,application/octet-stream" id="file-${escapeHTML(p.id)}" data-patch-file="${escapeHTML(p.id)}">
+      </div>
+      <div class="patch-grid">
+        <div class="patch-field"><span>TAMANHO</span><strong>${fmtBytes(p.size)}</strong></div>
+        <div class="patch-field"><span>SHA-256</span><strong title="${escapeHTML(p.sha256||'')}">${escapeHTML(shortHash(p.sha256))}</strong></div>
+      </div>
+      <div class="upload-progress hidden" id="progress-${escapeHTML(p.id)}"><i></i></div>
+      <div class="controls" style="margin-top:11px">
+        <button class="mini-btn" data-action="history-patch" data-id="${escapeHTML(p.id)}">Histórico</button>
+        <button class="mini-btn" data-action="edit-patch" data-id="${escapeHTML(p.id)}">Metadados</button>
+        ${published?`<button class="mini-btn" data-action="unpublish-patch" data-id="${escapeHTML(p.id)}">Despublicar</button>`:""}
+        <button class="mini-btn red" data-action="delete-patch" data-id="${escapeHTML(p.id)}">Excluir</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function emptyHTML(title,sub){return `<div class="empty"><svg viewBox="0 0 24 24"><path d="M4 7h16v12H4zM8 4h8v3"></path></svg><h3>${escapeHTML(title)}</h3><p>${escapeHTML(sub)}</p></div>`}
+
+function renderAudit(){
+  const root=$("#auditList");
+  if(!auditEvents.length){root.innerHTML='<div class="row-sub">Nenhum evento registrado.</div>';return}
+  root.innerHTML=auditEvents.map(e=>`<div class="audit-line"><div class="audit-event" title="${escapeHTML(e.event_type)}">${escapeHTML(e.event_type)}</div><div class="audit-meta">${escapeHTML(e.actor||'—')} • ${escapeHTML(e.ip||'—')}</div><div class="audit-time">${escapeHTML(fmtDate(e.created_at))}</div></div>`).join("");
+}
+function renderOverviewAudit(){
+  const root=$("#overviewAudit");
+  const list=auditEvents.slice(0,5);
+  root.innerHTML=list.length?list.map(e=>`<div class="audit-line"><div class="audit-event">${escapeHTML(e.event_type)}</div><div class="audit-meta">${escapeHTML(e.actor||'—')}</div><div class="audit-time">${escapeHTML(fmtDate(e.created_at))}</div></div>`).join(""):'<div class="row-sub">Nenhuma alteração registrada.</div>';
+}
+
+/* =========================================================
+   MUTATIONS
+========================================================= */
+async function patchEntity(kind,id,changes){
+  try{
+    await api(`/api/admin/${kind}/${enc(id)}`,{method:"PATCH",body:JSON.stringify(changes)});
+    await loadState();toast("Alteração publicada",`Revision ${remoteState.revision}`);
+  }catch(e){if(!onAuthFailure(e))toast("Falha ao alterar",e.message,"error")}
+}
+async function deleteEntity(kind,id,cascade=false){
+  try{
+    await api(`/api/admin/${kind}/${enc(id)}${cascade?'?cascade=1':''}`,{method:"DELETE"});
+    await loadState();await loadAudit(100);toast("Removido",id);
+  }catch(e){if(!onAuthFailure(e))toast("Falha ao excluir",e.message,"error")}
+}
+
+$("#tabsList").onclick=e=>handleListClick(e,"tabs");
+$("#featuresList").onclick=e=>handleListClick(e,"features");
+$("#patchesList").onclick=e=>handleListClick(e,"patches");
+
+function handleListClick(e,scope){
+  const b=e.target.closest("[data-action]");if(!b)return;
+  const action=b.dataset.action,id=b.dataset.id;
+  if(action==="tab-visible"){const t=tabById(id);patchEntity("tabs",id,{visible:!t.visible})}
+  if(action==="tab-enabled"){const t=tabById(id);patchEntity("tabs",id,{enabled:!t.enabled})}
+  if(action==="feature-visible"){const f=remoteState.features.find(x=>x.id===id);patchEntity("features",id,{visible:!f.visible})}
+  if(action==="feature-enabled"){const f=remoteState.features.find(x=>x.id===id);patchEntity("features",id,{enabled:!f.enabled})}
+  if(action==="edit-tab")openTabModal(tabById(id));
+  if(action==="edit-feature")openFeatureModal(remoteState.features.find(x=>x.id===id));
+  if(action==="edit-patch")openPatchModal(patchById(id));
+  if(action==="delete-tab")confirmAction("Excluir aba?","Se ela tiver funções vinculadas, o servidor bloqueará a exclusão normal.",async()=>deleteEntity("tabs",id,false),"Excluir");
+  if(action==="delete-feature")confirmAction("Excluir função?",id,async()=>deleteEntity("features",id),"Excluir");
+  if(action==="delete-patch")confirmAction("Excluir patch?","Só será permitido se nenhuma função ainda referenciar esse patch.",async()=>deleteEntity("patches",id),"Excluir");
+  if(action==="upload-patch")document.getElementById("file-"+id)?.click();
+  if(action==="history-patch")openPatchHistory(id);
+  if(action==="unpublish-patch")confirmAction("Despublicar arquivo?","O histórico fica salvo, mas o patch atual deixa de ser entregue aos clientes.",async()=>unpublishPatch(id),"Despublicar");
+}
+
+$("#patchesList").addEventListener("change",e=>{
+  const input=e.target.closest("[data-patch-file]");if(!input||!input.files?.[0])return;
+  uploadPatch(input.dataset.patchFile,input.files[0]);input.value="";
+});
+
+async function uploadPatch(id,file){
+  if(!file.name.toLowerCase().endsWith(".3105")){toast("Arquivo inválido","Selecione um arquivo .3105","error");return}
+  const p=patchById(id);const progress=document.getElementById("progress-"+id);const bar=progress?.querySelector("i");
+  if(progress){progress.classList.remove("hidden");bar.style.width="18%"}
+  try{
+    const bytes=await file.arrayBuffer();if(bar)bar.style.width="52%";
+    const note=prompt("Nota desta versão (opcional):","")??"";
+    const headers={"Content-Type":"application/octet-stream","X-Patch-File-Name":file.name,"X-Patch-Password":p?.password??"0"};
+    if(note.trim())headers["X-Patch-Note"]=note.trim().slice(0,500);
+    await api(`/api/admin/patches/${enc(id)}/file`,{method:"PUT",headers,body:bytes});
+    if(bar)bar.style.width="100%";await loadState();await loadAudit(100);toast(".3105 publicado",`${id} agora está na versão ${patchById(id)?.version||'nova'}.`);
+  }catch(e){if(!onAuthFailure(e))toast("Falha no upload",e.message,"error")}
+  finally{setTimeout(()=>{if(progress){progress.classList.add("hidden");if(bar)bar.style.width="0"}},350)}
+}
+async function unpublishPatch(id){
+  try{await api(`/api/admin/patches/${enc(id)}/unpublish`,{method:"POST",body:"{}"});await loadState();await loadAudit(100);toast("Patch despublicado",id)}
+  catch(e){if(!onAuthFailure(e))toast("Falha",e.message,"error")}
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+function openModal(title,sub,bodyHTML,onSave,{saveLabel="Salvar",danger=false}={}){
+  const layer=$("#modalLayer");
+  layer.innerHTML=`<div class="modal"><div class="modal-head"><div><div class="modal-title">${escapeHTML(title)}</div><div class="modal-sub">${escapeHTML(sub||"")}</div></div><button class="icon-btn" data-close-modal aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div><div class="modal-body">${bodyHTML}<div class="modal-actions"><button class="secondary" data-close-modal>Cancelar</button><button id="modalSave" class="${danger?'danger':'primary'}">${escapeHTML(saveLabel)}</button></div></div></div>`;
+  layer.classList.remove("hidden");
+  layer.querySelectorAll("[data-close-modal]").forEach(b=>b.onclick=closeModal);
+  layer.onclick=e=>{if(e.target===layer)closeModal()};
+  $("#modalSave").onclick=async()=>{const b=$("#modalSave");b.disabled=true;try{await onSave();}finally{if(document.body.contains(b))b.disabled=false}};
+}
+function closeModal(){$("#modalLayer").classList.add("hidden");$("#modalLayer").innerHTML=""}
+function field(id,label,value="",type="text",full=false,extra=""){return `<div class="field ${full?'full':''}"><label class="label" for="${id}">${escapeHTML(label)}</label><input id="${id}" class="input" type="${type}" value="${escapeHTML(value??'')}" ${extra}></div>`}
+function selectField(id,label,options,value,full=false){return `<div class="field ${full?'full':''}"><label class="label" for="${id}">${escapeHTML(label)}</label><select id="${id}" class="select">${options.map(o=>`<option value="${escapeHTML(o.value)}" ${String(o.value)===String(value)?'selected':''}>${escapeHTML(o.label)}</option>`).join('')}</select></div>`}
+
+function openTabModal(tab=null){
+  const creating=!tab;
+  const html=`<div class="modal-grid">${field("mTabId","ID",tab?.id||"","text",false,creating?'':'disabled')}${field("mTabTitle","TÍTULO",tab?.title||"")}${field("mTabIcon","ÍCONE SF SYMBOL",tab?.icon||"square.grid.2x2")}${field("mTabOrder","ORDEM",tab?.order??0,"number")}</div>`;
+  openModal(creating?"Nova aba":"Editar aba",creating?"Cria uma nova seção controlável da EXTERNAL.":tab.id,html,async()=>{
+    const data={id:$("#mTabId").value.trim(),title:$("#mTabTitle").value.trim(),icon:$("#mTabIcon").value.trim(),order:Number($("#mTabOrder").value||0)};
+    try{
+      if(creating){data.visible=true;data.enabled=true;await api("/api/admin/tabs",{method:"POST",body:JSON.stringify(data)})}
+      else await api(`/api/admin/tabs/${enc(tab.id)}`,{method:"PATCH",body:JSON.stringify({title:data.title,icon:data.icon,order:data.order})});
+      closeModal();await loadState();await loadAudit(100);toast(creating?"Aba criada":"Aba atualizada",data.title);
+    }catch(e){if(!onAuthFailure(e))toast("Falha",e.message,"error")}
+  });
+}
+
+function patchOptions(includeNone=true){
+  const arr=remoteState.patches.map(p=>({value:p.id,label:p.id}));if(includeNone)arr.unshift({value:"",label:"— Nenhum —"});return arr;
+}
+function tabOptions(){return remoteState.tabs.slice().sort(byOrder).map(t=>({value:t.id,label:t.title}))}
+function openFeatureModal(feature=null){
+  const creating=!feature;
+  const html=`<div class="modal-grid">
+    ${field("mFeatureId","ID",feature?.id||"","text",false,creating?'':'disabled')}
+    ${selectField("mFeatureTab","ABA",tabOptions(),feature?.tabID||remoteState.tabs[0]?.id||"")}
+    ${field("mFeatureTitle","TÍTULO",feature?.title||"")}
+    ${field("mFeatureSlot","SLOT ID",feature?.slotID||"")}
+    ${field("mFeatureCategory","CATEGORIA",feature?.category||"GENERAL")}
+    ${selectField("mFeatureGame","JOGO",[{value:"normal",label:"Free Fire Normal"},{value:"max",label:"Free Fire Max"},{value:"all",label:"Todos"}],feature?.game||"all")}
+    ${field("mFeatureOrder","ORDEM",feature?.order??0,"number")}
+    ${field("mFeatureImage","IMAGE NAME",feature?.imageName||"")}
+    ${selectField("mFeaturePatch","PATCH PRINCIPAL",patchOptions(),feature?.patchID||"")}
+    ${selectField("mFeatureAntenna","PATCH COM ANTENA",patchOptions(),feature?.withAntennaPatchID||"")}
+    <div class="field full"><label class="label" for="mFeatureSubtitle">SUBTÍTULO</label><textarea id="mFeatureSubtitle" class="textarea">${escapeHTML(feature?.subtitle||"")}</textarea></div>
+  </div>`;
+  openModal(creating?"Nova função":"Editar função",creating?"Cria um item que poderá aparecer dinamicamente no app.":feature.id,html,async()=>{
+    const data={
+      id:$("#mFeatureId").value.trim(),tabID:$("#mFeatureTab").value,slotID:$("#mFeatureSlot").value.trim()||null,title:$("#mFeatureTitle").value.trim(),subtitle:$("#mFeatureSubtitle").value.trim()||null,category:$("#mFeatureCategory").value.trim(),game:$("#mFeatureGame").value,imageName:$("#mFeatureImage").value.trim()||null,order:Number($("#mFeatureOrder").value||0),patchID:$("#mFeaturePatch").value||null,withAntennaPatchID:$("#mFeatureAntenna").value||null
+    };
+    try{
+      if(creating){data.visible=true;data.enabled=true;await api("/api/admin/features",{method:"POST",body:JSON.stringify(data)})}
+      else{delete data.id;await api(`/api/admin/features/${enc(feature.id)}`,{method:"PATCH",body:JSON.stringify(data)})}
+      closeModal();await loadState();await loadAudit(100);toast(creating?"Função criada":"Função atualizada",feature?.id||data.title);
+    }catch(e){if(!onAuthFailure(e))toast("Falha",e.message,"error")}
+  });
+}
+
+function openPatchModal(patch=null){
+  const creating=!patch;
+  const html=`<div class="modal-grid">${field("mPatchId","ID",patch?.id||"","text",false,creating?'':'disabled')}${field("mPatchFile","NOME DO ARQUIVO",patch?.fileName||(patch?.id?patch.id+'.3105':''))}${field("mPatchPassword","PASSWORD DO .3105",patch?.password??"0","text",true)}</div>`;
+  openModal(creating?"Novo patch":"Metadados do patch",creating?"Cria o slot remoto; o arquivo pode ser enviado depois.":patch.id,html,async()=>{
+    const data={id:$("#mPatchId").value.trim(),fileName:$("#mPatchFile").value.trim(),password:$("#mPatchPassword").value};
+    try{
+      if(creating)await api("/api/admin/patches",{method:"POST",body:JSON.stringify(data)});
+      else await api(`/api/admin/patches/${enc(patch.id)}`,{method:"PATCH",body:JSON.stringify({fileName:data.fileName,password:data.password})});
+      closeModal();await loadState();await loadAudit(100);toast(creating?"Patch criado":"Patch atualizado",creating?data.id:patch.id);
+    }catch(e){if(!onAuthFailure(e))toast("Falha",e.message,"error")}
+  });
+}
+
+async function openPatchHistory(id){
+  try{
+    const data=await api(`/api/admin/patches/${enc(id)}/versions`);const versions=data.versions||[];const current=patchById(id)?.version||0;
+    const html=versions.length?`<div>${versions.map(v=>`<div class="history-item"><div class="version-ball">v${v.version}</div><div class="history-main"><strong>${escapeHTML(v.file_name)}</strong><span>${fmtBytes(v.size)} • ${escapeHTML(shortHash(v.sha256))} • ${escapeHTML(fmtDate(v.created_at))}${v.note?` • ${escapeHTML(v.note)}`:''}</span></div><div>${Number(v.version)===Number(current)?'<span class="badge good">ATUAL</span>':`<button class="mini-btn" data-rollback="${v.version}">Rollback</button>`}</div></div>`).join('')}</div>`:'<div class="row-sub">Nenhuma versão publicada ainda.</div>';
+    openModal(`Histórico • ${id}`,`${versions.length} versão${versions.length===1?'':'ões'} armazenada${versions.length===1?'':'s'}`,html,async()=>closeModal(),{saveLabel:"Fechar"});
+    $("#modalSave").onclick=closeModal;
+    $("#modalLayer").querySelectorAll("[data-rollback]").forEach(b=>b.onclick=()=>confirmAction("Fazer rollback?",`Voltar ${id} para v${b.dataset.rollback}.`,async()=>{await rollbackPatch(id,Number(b.dataset.rollback));closeModal()},"Rollback"));
+  }catch(e){if(!onAuthFailure(e))toast("Falha ao carregar histórico",e.message,"error")}
+}
+async function rollbackPatch(id,version){
+  try{await api(`/api/admin/patches/${enc(id)}/rollback`,{method:"POST",body:JSON.stringify({version})});await loadState();await loadAudit(100);toast("Rollback concluído",`${id} → v${version}`)}
+  catch(e){if(!onAuthFailure(e))toast("Falha no rollback",e.message,"error")}
+}
+
+function confirmAction(title,sub,onConfirm,label="Confirmar"){
+  openModal(title,sub,`<div class="row-sub" style="font-size:10px;color:#777;line-height:1.6">Esta ação é aplicada no servidor imediatamente e incrementa a revision quando altera a configuração publicada.</div>`,async()=>{closeModal();await onConfirm()},{saveLabel:label,danger:true});
+}
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+$("#newTabBtn").onclick=()=>openTabModal();
+$("#newFeatureBtn").onclick=()=>openFeatureModal();
+$("#newPatchBtn").onclick=()=>openPatchModal();
+$("#tabSearch").oninput=renderTabs;
+$("#featureSearch").oninput=renderFeatures;
+$("#featureTabFilter").onchange=renderFeatures;
+$("#patchSearch").oninput=renderPatches;
+$("#refreshBtn").onclick=loadAll;
+$("#refreshAuditBtn").onclick=()=>loadAudit(100);
+$("#refreshAuditOverview").onclick=()=>loadAudit(100);
+$("#pollRange").oninput=e=>$("#pollMeta").textContent=e.target.value+"s";
+$("#savePollBtn").onclick=async()=>{
+  const pollIntervalSeconds=Number($("#pollRange").value);
+  try{await api("/api/admin/settings",{method:"PATCH",body:JSON.stringify({pollIntervalSeconds})});await loadState();await loadAudit(100);toast("Intervalo atualizado",`${pollIntervalSeconds}s`)}
+  catch(e){if(!onAuthFailure(e))toast("Falha",e.message,"error")}
+};
+$("#openPublicConfigBtn").onclick=()=>{
+  const cfg={schema:remoteState.schema,revision:remoteState.revision,pollIntervalSeconds:remoteState.pollIntervalSeconds,tabs:remoteState.tabs,features:remoteState.features,patches:remoteState.patches};
+  openModal("Config publicada",`Revision ${remoteState.revision}`,`<textarea class="textarea" style="min-height:420px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px" readonly>${escapeHTML(JSON.stringify(cfg,null,2))}</textarea>`,async()=>closeModal(),{saveLabel:"Fechar"});$("#modalSave").onclick=closeModal;
+};
+
+/* NAV */
+function showPage(name){
+  $$(".tab-page").forEach(p=>p.classList.add("hidden"));
+  $("#page"+name)?.classList.remove("hidden");
+  $$(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+  window.scrollTo(0,0);
+  if(name==="System")loadHealth();
+}
+$$(".nav-btn").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+
+/* RESTORE SESSION */
+(async()=>{
+  if(!adminToken)return;
+  try{openDashboard();await loadAll()}
+  catch(e){if(!onAuthFailure(e)){await logout()}}
+})();
+</script>
+</body>
+</html>
